@@ -8,6 +8,9 @@ import { DatabaseConfig } from './config/database.config';
 import { AppConfig } from './config/app.config';
 import { join } from 'node:path';
 import { DatabaseModule } from './database/database.module';
+import { AccountsModule } from './accounts/accounts.module';
+import { TicketsModule } from './tickets/tickets.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { DatabaseModule } from './database/database.module';
       },
     }),
     DatabaseModule,
+    AccountsModule,
+    TicketsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
