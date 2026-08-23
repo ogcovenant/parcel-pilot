@@ -2,15 +2,20 @@
   "name": "parel-pilot",
   "version": "0.1.0",
   "private": true,
-  "description": "Parel Pilot monorepo — NestJS API + Vite web app",
+  "description": "ParcelPilot Support Intelligence — NestJS API + Vite web app",
   "packageManager": "pnpm@10.21.0",
   "scripts": {
     "dev": "turbo run dev --parallel",
+    "dev:api": "pnpm --filter @parel-pilot/api dev",
+    "dev:web": "pnpm --filter @parel-pilot/web dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "dev:api": "pnpm --filter @parel-pilot/api dev",
-    "dev:web": "pnpm --filter @parel-pilot/web dev"
+    "test": "pnpm --filter @parel-pilot/api test",
+    "ingest:workbook": "pnpm --filter @parel-pilot/api ingest:workbook",
+    "ingest:documents": "pnpm --filter @parel-pilot/api ingest:documents",
+    "detect:issues": "pnpm --filter @parel-pilot/api detect:issues",
+    "eval:cases": "pnpm --filter @parel-pilot/api eval:cases"
   },
   "devDependencies": {
     "prettier": "^3.3.3",

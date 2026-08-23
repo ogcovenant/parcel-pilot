@@ -1,57 +1,60 @@
-import { Account } from 'src/accounts/account.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Account } from '../accounts/account.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-export enum ORDER_STATUS {
-  BOOKED = 'booked',
-  PICKED_UP = 'picked_up',
-  DELIVERED = 'delivered',
-}
+export const ORDER_STATUSES = ['BOOKED', 'PICKED_UP', 'DELIVERED'] as const;
 
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  uuid: string;
+  id: string;
 
-  @Column({ name: 'order_id', type: 'varchar', nullable: false })
+  @Column({ unique: true, name: 'order_id', type: 'varchar' })
   orderId: string;
 
-  @ManyToOne(() => Account, (account) => account.order)
+  @ManyToOne(() => Account, (account) => account.orders)
+  @JoinColumn({ name: 'account_id' })
   account: Account;
 
-  @Column({ name: 'carrier', type: 'varchar', nullable: false })
+  @Column({ type: 'varchar' })
   carrier: string;
 
-  @Column({ name: 'status', type: 'enum', enum: ORDER_STATUS, nullable: false })
-  status: ORDER_STATUS;
+  @Column({ type: 'varchar' })
+  status: (typeof ORDER_STATUSES)[number];
 
-  @Column({ name: 'booked_at', type: 'timestamp', nullable: false })
+  @Column({ type: 'timestamptz', name: 'booked_at' })
   bookedAt: Date;
 
-  @Column({ name: 'pickup_window_start', type: 'timestamp', nullable: false })
+  @Column({ type: 'timestamptz', name: 'pickup_window_start' })
   pickupWindowStart: Date;
 
-  @Column({ name: 'pickup_window_end', type: 'timestamp', nullable: false })
+  @Column({ type: 'timestamptz', name: 'pickup_window_end' })
   pickupWindowEnd: Date;
 
-  @Column({ name: 'pickup_actual_at', type: 'timestamp', nullable: false })
-  pickupActualAt: Date;
+  @Column({ type: 'timestamptz', nullable: true, name: 'pickup_actual_at' })
+  pickupActualAt: Date | null;
 
-  @Column({ name: 'shipment_fee_inr', type: 'integer', nullable: false })
-  shipmentFeeInr: Date;
+  @Column({ type: 'numeric', name: 'shipment_fee_inr' })
+  shipmentFeeInr: string;
 
-  @Column({ name: 'carrier_fault', type: 'boolean', nullable: false })
+  @Column({ type: 'boolean', default: false, name: 'carrier_fault' })
   carrierFault: boolean;
 
-  @Column({ name: 'customer_fault', type: 'boolean', nullable: false })
+  @Column({ type: 'boolean', default: false, name: 'customer_fault' })
   customerFault: boolean;
 
   @Column({
+    type: 'timestamptz',
+    nullable: true,
     name: 'cancellation_requested_at',
-    type: 'timestamp',
-    nullable: false,
   })
-  cancellationRequestedAt: Date;
+  cancellationRequestedAt: Date | null;
 
-  @Column({ name: 'notes', type: 'text', nullable: false })
-  notes: boolean;
+  @Column({ type: 'text', nullable: true })
+  notes: string | null;
 }

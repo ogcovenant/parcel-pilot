@@ -1,55 +1,42 @@
-import { Order } from 'src/orders/order.entity';
-import { Ticket } from 'src/tickets/ticket.entity';
+import { Order } from '../orders/order.entity';
+import { Ticket } from '../tickets/ticket.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-export enum ACCOUNT_PLAN {
-  STANDARD = 'standard',
-  GROWTH = 'growth',
-  ENTERPRISE = 'enterprise',
-}
-
-export enum ACCOUNT_STATUS {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-}
+export const ACCOUNT_PLANS = ['standard', 'growth', 'enterprise'] as const;
+export const ACCOUNT_STATUSES = ['active', 'inactive'] as const;
 
 @Entity('accounts')
 export class Account {
   @PrimaryGeneratedColumn('uuid')
-  uuid: string;
+  id: string;
 
-  @Column({ name: 'account_id', type: 'varchar', nullable: false })
+  @Column({ unique: true, name: 'account_id', type: 'varchar' })
   accountId: string;
 
-  @Column({ name: 'account_name', type: 'varchar', nullable: false })
+  @Column({ name: 'account_name', type: 'varchar' })
   accountName: string;
 
-  @Column({ name: 'plan', type: 'enum', enum: ACCOUNT_PLAN, nullable: false })
-  plan: ACCOUNT_PLAN;
+  @Column({ type: 'varchar' })
+  plan: (typeof ACCOUNT_PLANS)[number];
 
-  @Column({
-    name: 'status',
-    type: 'enum',
-    enum: ACCOUNT_STATUS,
-    nullable: false,
-  })
-  status: ACCOUNT_STATUS;
+  @Column({ type: 'varchar' })
+  status: (typeof ACCOUNT_STATUSES)[number];
 
-  @Column({ name: 'csm', type: 'varchar', nullable: false })
+  @Column({ type: 'varchar' })
   csm: string;
 
-  @Column({ name: 'contract_file', type: 'varchar', nullable: false })
-  contractFile: string;
+  @Column({ type: 'varchar', nullable: true, name: 'contract_file' })
+  contractFile: string | null;
 
-  @Column({ name: 'premium_support', type: 'boolean', nullable: false })
+  @Column({ type: 'boolean', default: false, name: 'premium_support' })
   premiumSupport: boolean;
 
-  @Column({ name: 'notes', type: 'text', nullable: false })
-  notes: string;
+  @Column({ type: 'text', nullable: true })
+  notes: string | null;
 
   @OneToMany(() => Order, (order) => order.account)
-  order: Order;
+  orders: Order[];
 
   @OneToMany(() => Ticket, (ticket) => ticket.account)
-  ticket: Ticket;
+  tickets: Ticket[];
 }

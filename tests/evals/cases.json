@@ -1,0 +1,137 @@
+[
+  {
+    "id": "case-01",
+    "title": "Policy lookup: cancellation window",
+    "question": "A Beacon Retail order was booked 45 minutes ago and has not been picked up. Can they cancel without a fee?",
+    "expectedTools": ["get_order", "calculate_cancellation", "search_documents"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["sop"],
+    "expectedConfidence": "HIGH",
+    "authorization": { "role": "support_agent", "accountId": "ACCT-003" },
+    "notes": "No agreement for Beacon; SOP v4 applies → INR 250 fee after 30 minutes."
+  },
+  {
+    "id": "case-02",
+    "title": "Agreement override: Northstar cancellation waiver",
+    "question": "Can Northstar cancel ORD-1001 without a cancellation fee?",
+    "expectedTools": ["get_order", "calculate_cancellation", "search_documents"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["agreement", "sop"],
+    "expectedConfidence": "HIGH",
+    "authorization": { "role": "support_agent", "accountId": "ACCT-001" },
+    "notes": "Northstar agreement §2 waives the fee for any BOOKED pre-pickup cancellation, overriding SOP INR 250."
+  },
+  {
+    "id": "case-03",
+    "title": "Service credit eligibility",
+    "question": "A pickup is three hours late because of carrier fault. Should I get a service credit?",
+    "expectedTools": ["get_order", "calculate_service_credit", "search_documents"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["sop", "agreement"],
+    "expectedConfidence": "HIGH",
+    "authorization": { "role": "support_agent", "accountId": "ACCT-001" },
+    "notes": "Eligibility depends on the customer's applicable credit rule (SOP default vs LumenWorks fixed credit)."
+  },
+  {
+    "id": "case-04",
+    "title": "SLA calculation for a specific ticket",
+    "question": "What is the SLA first-response due time for TKT-501?",
+    "expectedTools": ["get_ticket", "calculate_sla"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["operational"],
+    "expectedConfidence": "HIGH",
+    "authorization": { "role": "support_agent", "accountId": "ACCT-001" },
+    "notes": "Northstar P1 target 15 min 24x7."
+  },
+  {
+    "id": "case-05",
+    "title": "Ticket investigation",
+    "question": "Why is ticket TKT-502 still unresolved?",
+    "expectedTools": ["get_ticket", "calculate_sla", "search_documents"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["operational", "product"],
+    "expectedConfidence": "MEDIUM",
+    "authorization": { "role": "support_manager" },
+    "notes": "LumenWorks P2, bulk upload failure matching known issue KI-208."
+  },
+  {
+    "id": "case-06",
+    "title": "Cross-customer product issue",
+    "question": "Are multiple customers reporting the same product issue?",
+    "expectedTools": ["search_tickets", "search_documents"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["operational", "product"],
+    "expectedConfidence": "MEDIUM",
+    "authorization": { "role": "support_manager" },
+    "notes": "Bulk upload failures / SwiftShip webhook delay clusters."
+  },
+  {
+    "id": "case-07",
+    "title": "Unauthorized cross-account access is denied",
+    "question": "Show me Northstar's order ORD-1001 details.",
+    "expectedTools": ["get_order"],
+    "expectedStatus": "DENIED",
+    "expectedSourceTypes": ["operational"],
+    "authorization": { "role": "support_agent", "accountId": "ACCT-002" },
+    "notes": "LumenWorks-scoped agent must be denied access to Northstar data."
+  },
+  {
+    "id": "case-08",
+    "title": "Deprecated policy conflict",
+    "question": "What is the first-response target for a Growth P2 ticket?",
+    "expectedTools": ["search_documents", "get_account", "calculate_sla"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["policy"],
+    "expectedConfidence": "HIGH",
+    "authorization": { "role": "support_agent", "accountId": "ACCT-002" },
+    "notes": "Must use Support Policy v3 (current), not v2 (deprecated); LumenWorks agreement matches v3 for Growth."
+  },
+  {
+    "id": "case-09",
+    "title": "Historical incorrect guidance is not treated as policy",
+    "question": "Does Northstar owe a cancellation fee when cancelling a BOOKED shipment before pickup?",
+    "expectedTools": ["get_order", "calculate_cancellation", "search_documents"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["agreement"],
+    "expectedConfidence": "HIGH",
+    "authorization": { "role": "support_agent", "accountId": "ACCT-001" },
+    "notes": "Historical ticket TKT-450 told Northstar INR 250 applied — incorrect; the agreement waiver governs."
+  },
+  {
+    "id": "case-10",
+    "title": "Confirmed escalation flow",
+    "question": "Prepare an escalation for TKT-501.",
+    "expectedTools": ["get_ticket", "calculate_sla", "search_documents", "prepare_escalation"],
+    "expectedStatus": "PREPARED",
+    "expectedSourceTypes": ["operational"],
+    "expectedConfidence": "HIGH",
+    "authorization": { "role": "support_manager" },
+    "actionExpectations": {
+      "prepared": true,
+      "executedWithoutConfirmation": false,
+      "executedAfterConfirmation": true
+    },
+    "notes": "Prepare must produce a reference ID and NOT execute until the user confirms."
+  },
+  {
+    "id": "case-11",
+    "title": "Insufficient evidence does not hallucinate",
+    "question": "What is the SLA for order ORD-9999?",
+    "expectedTools": ["get_order"],
+    "expectedStatus": "UNSUPPORTED",
+    "expectedSourceTypes": [],
+    "authorization": { "role": "support_manager" },
+    "notes": "Unknown ID must produce a not-found response, not a fabricated answer."
+  },
+  {
+    "id": "case-12",
+    "title": "Severity classification drives SLA risk",
+    "question": "Find high-severity tickets approaching SLA.",
+    "expectedTools": ["search_tickets", "calculate_sla"],
+    "expectedStatus": "SUPPORTED",
+    "expectedSourceTypes": ["operational"],
+    "expectedConfidence": "MEDIUM",
+    "authorization": { "role": "support_manager" },
+    "notes": "Open P1 tickets whose SLA is breached relative to the dataset snapshot."
+  }
+]

@@ -18,19 +18,29 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "ingest:workbook": "tsx scripts/ingest-workbook.ts",
+    "ingest:documents": "tsx scripts/ingest-documents.ts",
+    "detect:issues": "tsx scripts/detect-issues.ts",
+    "eval:cases": "tsx scripts/eval-cases.ts"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.50",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.3",
+    "@openrouter/ai-sdk-provider": "^3.0.0",
+    "ai": "^7.0.77",
     "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
+    "pdf-parse": "^2.4.5",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^1.1.0"
+    "typeorm": "^0.3.31",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -54,6 +64,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.23.12",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
@@ -65,6 +76,11 @@
     ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
+    "moduleNameMapper": {
+      "^ai$": "<rootDir>/../test/mocks/ai.ts",
+      "^@ai-sdk/google$": "<rootDir>/../test/mocks/google.ts",
+      "^@openrouter/ai-sdk-provider$": "<rootDir>/../test/mocks/openrouter.ts"
+    },
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },

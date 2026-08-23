@@ -1,65 +1,70 @@
-import { Account } from 'src/accounts/account.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Account } from '../accounts/account.entity';
+import { Order } from '../orders/order.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-export enum TICKET_STATUS {
-  OPEN = 'open',
-  CLOSED = 'closed',
-}
+export const TICKET_STATUSES = ['open', 'closed'] as const;
+export const TICKET_CHANNELS = ['email', 'chat'] as const;
+export const TICKET_SEVERITIES = ['P1', 'P2', 'P3'] as const;
 
-export enum TICKET_CHANNEL {
-  EMAIL = 'email',
-  CHAT = 'chat',
-}
-
-Entity('tickets');
+@Entity('tickets')
 export class Ticket {
   @PrimaryGeneratedColumn('uuid')
-  uuid: string;
+  id: string;
 
-  @Column({ name: 'ticket_id', type: 'varchar', nullable: false })
+  @Column({ unique: true, name: 'ticket_id', type: 'varchar' })
   ticketId: string;
 
-  @ManyToOne(() => Account, (account) => account.ticket)
+  @ManyToOne(() => Account, (account) => account.tickets)
+  @JoinColumn({ name: 'account_id' })
   account: Account;
 
-  @Column({ name: 'created_at', type: 'timestamp', nullable: false })
+  @ManyToOne(() => Order, { nullable: true })
+  @JoinColumn({ name: 'order_id' })
+  order: Order | null;
+
+  @Column({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;
 
-  @Column({
-    name: 'status',
-    type: 'enum',
-    enum: TICKET_STATUS,
-    nullable: false,
-  })
-  status: TICKET_STATUS;
+  @Column({ type: 'varchar' })
+  status: (typeof TICKET_STATUSES)[number];
 
-  @Column({ name: 'subject', type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
+  severity: (typeof TICKET_SEVERITIES)[number] | null;
+
+  @Column({ type: 'varchar' })
   subject: string;
 
-  @Column({ name: 'description', type: 'text', nullable: false })
+  @Column({ type: 'text' })
   description: string;
 
-  @Column({
-    name: 'channel',
-    type: 'enum',
-    enum: TICKET_CHANNEL,
-    nullable: false,
-  })
-  channel: string;
+  @Column({ type: 'varchar' })
+  channel: (typeof TICKET_CHANNELS)[number];
 
-  @Column({ name: 'assigned_to', type: 'varchar', nullable: false })
+  @Column({ name: 'assigned_to', type: 'varchar' })
   assignedTo: string;
 
   @Column({
+    type: 'timestamptz',
+    nullable: true,
     name: 'last_customer_message_at',
-    type: 'timestamp',
-    nullable: false,
   })
-  lastCustomerMessageAt: Date;
+  lastCustomerMessageAt: Date | null;
 
-  @Column({
-    name: 'historical_resolution',
-    type: 'text',
-  })
-  historicalResolution: string;
+  @Column({ type: 'text', nullable: true, name: 'historical_resolution' })
+  historicalResolution: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true, name: 'sla_due_at' })
+  slaDueAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true, name: 'resolved_at' })
+  resolvedAt: Date | null;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string | null;
 }
